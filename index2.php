@@ -71,5 +71,29 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
         }
     }
     ?>
+    <hr>
+<h3>4. Perfil de Usuario (IDOR)</h3>
+<p>Introduce un ID de usuario para ver su información privada (ej. ID 1 o ID 2):</p>
+<form method="GET">
+    <input type="number" name="id_perfil" placeholder="ID de usuario">
+    <button type="submit">Ver Perfil</button>
+</form>
+<?php
+if (isset($_GET['id_perfil'])) {
+    $id_user = intval($_GET['id_perfil']);
+    // Simulamos una tabla de perfiles privados
+    $db_idor = new SQLite3(':memory:');
+    $db_idor->exec("CREATE TABLE perfiles (id INT, nombre TEXT, tarjeta_credito TEXT)");
+    $db_idor->exec("INSERT INTO perfiles VALUES (1, 'Admin Principal', '4000-1234-5678-9010')");
+    $db_idor->exec("INSERT INTO perfiles VALUES (2, 'Diego (Tú)', '4532-8888-9999-1111')");
+
+    $res = $db_idor->query("SELECT * FROM perfiles WHERE id = $id_user");
+    if ($row = $res->fetchArray()) {
+        echo "<p style='color:blue;'>ID: {$row['id']} | Nombre: {$row['nombre']} | Tarjeta: <strong>{$row['tarjeta_credito']}</strong></p>";
+    } else {
+        echo "<p style='color:red;'>Usuario no encontrado.</p>";
+    }
+}
+?>
 </body>
 </html>
