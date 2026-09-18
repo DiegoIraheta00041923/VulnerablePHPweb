@@ -72,28 +72,38 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
     }
     ?>
     <hr>
-<h3>4. Perfil de Usuario (IDOR)</h3>
-<p>Introduce un ID de usuario para ver su información privada (ej. ID 1 o ID 2):</p>
-<form method="GET">
-    <input type="number" name="id_perfil" placeholder="ID de usuario">
-    <button type="submit">Ver Perfil</button>
-</form>
-<?php
-if (isset($_GET['id_perfil'])) {
-    $id_user = intval($_GET['id_perfil']);
-    // Simulamos una tabla de perfiles privados
+    <h3>4. Panel de Perfil de Usuario (IDOR)</h3>
+    <p>Visualiza y gestiona tu información de perfil de usuario:</p>
+    
+    <form method="GET">
+        <!-- El input está fijo o limitado visualmente al usuario actual (ID 2) -->
+        <label>ID de Usuario:</label>
+        <input type="number" name="id_perfil" value="2" readonly style="background-color: #e0e0e0;"><br><br>
+        <button type="submit">Cargar Perfil</button>
+    </form>
+
+    <?php
+    // Si el parámetro no viaja por GET, por defecto cargamos el ID 2 del propio usuario
+    $id_user = isset($_GET['id_perfil']) ? intval($_GET['id_perfil']) : 2;
+
+    // Simulamos la base de datos de perfiles
     $db_idor = new SQLite3(':memory:');
-    $db_idor->exec("CREATE TABLE perfiles (id INT, nombre TEXT, tarjeta_credito TEXT)");
-    $db_idor->exec("INSERT INTO perfiles VALUES (1, 'Admin Principal', '4000-1234-5678-9010')");
-    $db_idor->exec("INSERT INTO perfiles VALUES (2, 'Diego (Tú)', '4532-8888-9999-1111')");
+    $db_idor->exec("CREATE TABLE perfiles (id INT, nombre TEXT, rol TEXT, tarjeta_credito TEXT)");
+    $db_idor->exec("INSERT INTO perfiles VALUES (1, 'Admin Principal', 'Administrador', '4000-1234-5678-9010')");
+    $db_idor->exec("INSERT INTO perfiles VALUES (2, 'Estudiante (Tú)', 'Usuario Regular', '4532-8888-9999-1111')");
 
     $res = $db_idor->query("SELECT * FROM perfiles WHERE id = $id_user");
+    
     if ($row = $res->fetchArray()) {
-        echo "<p style='color:blue;'>ID: {$row['id']} | Nombre: {$row['nombre']} | Tarjeta: <strong>{$row['tarjeta_credito']}</strong></p>";
+        echo "<div style='background: #f9f9f9; padding: 10px; margin-top: 10px; border: 1px solid #ccc;'>";
+        echo "<p><strong>ID:</strong> {$row['id']}</p>";
+        echo "<p><strong>Nombre:</strong> {$row['nombre']}</p>";
+        echo "<p><strong>Rol:</strong> {$row['rol']}</p>";
+        echo "<p><strong>Tarjeta de Crédito:</strong> <span style='color:red;'>{$row['tarjeta_credito']}</span></p>";
+        echo "</div>";
     } else {
         echo "<p style='color:red;'>Usuario no encontrado.</p>";
     }
-}
-?>
+    ?>
 </body>
 </html>
