@@ -79,5 +79,36 @@ $flag_enviada = isset($_POST['flag_input']) && $_POST['flag_input'] === 'UCA{sql
         }
         ?>
     <?php endif; ?>
+<!-- FASE 4: Subida de Archivos Insegura -->
+<hr style="border: 2px solid orange;">
+<h3>Paso 4: Panel de Subida de Avatares (File Upload)</h3>
+<p>Sube una imagen para tu perfil de usuario:</p>
+
+<form method="POST" enctype="multipart/form-data">
+    <input type="file" name="archivo" required>
+    <button type="submit" name="subir">Subir Archivo</button>
+</form>
+
+<?php
+if (isset($_POST['subir']) && isset($_FILES['archivo'])) {
+    $directorio_subidas = "uploads/";
+    
+    // Crear la carpeta si no existe
+    if (!file_exists($directorio_subidas)) {
+        mkdir($directorio_subidas, 0777, true);
+    }
+    
+    $nombre_archivo = basename($_FILES['archivo']['name']);
+    $ruta_destino = $directorio_subidas . $nombre_archivo;
+    
+    // VULNERABILIDAD: Se mueve el archivo sin validar su extensión (permite subir .php)
+    if (move_uploaded_file($_FILES['archivo']['tmp_name'], $ruta_destino)) {
+        echo "<p style='color:green;'>¡Archivo subido con éxito! Puedes acceder a él en: <a href='$ruta_destino' target='_blank'>$ruta_destino</a></p>";
+    } else {
+        echo "<p style='color:red;'>Error al subir el archivo.</p>";
+    }
+}
+?>
+    
 </body>
 </html>
